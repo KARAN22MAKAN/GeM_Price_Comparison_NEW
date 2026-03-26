@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeM Compare — Government E-Marketplace Price Comparison</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:     #08142a;
+      --card:     #0d1f3c;
+      --border:   rgba(255,153,51,.14);
+      --saffron:  #FF9933;
+      --saff2:    #d96e00;
+      --green:    #138808;
+      --greenl:   #22c55e;
+      --amazon:   #FF9900;
+      --flipkart: #2874F0;
+      --white:    #eef2ff;
+      --muted:    #7a8baa;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grain texture */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999; opacity: .5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      background: rgba(8,20,42,.88);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: .7rem; text-decoration: none; }
+    .logo-box {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--saffron), var(--saff2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .85rem; color: #08142a;
+    }
+    .logo-name  { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; }
+    .logo-sub   { font-size: .58rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+    .nav-r      { display: flex; align-items: center; gap: 1rem; }
+    .nav-link   { color: var(--muted); font-size: .82rem; text-decoration: none; transition: color .2s; }
+    .nav-link:hover { color: var(--saffron); }
+    .nav-chip {
+      background: rgba(255,153,51,.1); border: 1px solid rgba(255,153,51,.25);
+      color: var(--saffron); font-size: .68rem; padding: .28rem .75rem;
+      border-radius: 100px; font-weight: 500; letter-spacing: .05em;
+    }
+
+    /* ── HERO ── */
+    .hero { padding: 5rem 2.5rem 3rem; max-width: 900px; margin: 0 auto; text-align: center; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: .45rem;
+      background: rgba(19,136,8,.1); border: 1px solid rgba(19,136,8,.28);
+      color: var(--greenl); font-size: .7rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .35rem .9rem; border-radius: 100px; margin-bottom: 1.6rem;
+      animation: up .5s ease both;
+    }
+    .live-dot {
+      width: 6px; height: 6px; background: var(--greenl); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,.4); }
+      50%      { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+    }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+      font-weight: 800; line-height: 1.08; letter-spacing: -.025em;
+      margin-bottom: 1.1rem; animation: up .5s .08s ease both;
+    }
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(95deg, var(--saffron), #ff5400);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-p {
+      font-size: 1rem; color: var(--muted); font-weight: 300; line-height: 1.75;
+      max-width: 540px; margin: 0 auto 2.2rem; animation: up .5s .16s ease both;
+    }
+
+    /* ── SEARCH ── */
+    .search-box { animation: up .5s .22s ease both; }
+    .search-inner {
+      display: flex; align-items: center;
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: .45rem .45rem .45rem 1.3rem;
+      gap: .6rem; max-width: 640px; margin: 0 auto;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .search-inner:focus-within {
+      border-color: var(--saffron);
+      box-shadow: 0 0 0 4px rgba(255,153,51,.1), 0 8px 30px rgba(0,0,0,.4);
+    }
+    .si-icon { color: var(--muted); flex-shrink: 0; }
+    #q {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--white); font-family: 'DM Sans', sans-serif; font-size: .95rem;
+    }
+    #q::placeholder { color: var(--muted); }
+    .search-btn {
+      background: linear-gradient(135deg, var(--saffron), var(--saff2));
+      color: #08142a; border: none; border-radius: 10px;
+      padding: .7rem 1.5rem; font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: .82rem; cursor: pointer;
+      white-space: nowrap; transition: transform .15s, box-shadow .15s; letter-spacing: .02em;
+    }
+    .search-btn:hover  { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(255,153,51,.3); }
+    .search-btn:active { transform: translateY(0); }
+    .search-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .pills { display: flex; flex-wrap: wrap; justify-content: center; gap: .45rem; margin-top: 1.1rem; }
+    .pill {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+      color: var(--muted); padding: .3rem .82rem; border-radius: 100px;
+      font-size: .75rem; cursor: pointer; transition: all .18s;
+    }
+    .pill:hover { background: rgba(255,153,51,.1); border-color: rgba(255,153,51,.28); color: var(--saffron); }
+
+    /* Platform indicators */
+    .platform-row {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: .8rem; max-width: 640px; margin: 2.5rem auto 0;
+      animation: up .5s .3s ease both;
+    }
+    .p-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: .9rem 1rem; text-align: center;
+    }
+    .p-name {
+      font-size: .75rem; color: var(--muted); font-weight: 500;
+      display: flex; align-items: center; justify-content: center; gap: .4rem; margin-bottom: .35rem;
+    }
+    .p-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .p-status { font-size: .68rem; color: var(--greenl); }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1rem; max-width: 1000px; margin: 3rem auto 0; padding: 0 2.5rem;
+      animation: up .5s .35s ease both;
+    }
+    .sbc {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem 1.5rem;
+    }
+    .sbc-num  { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--saffron); }
+    .sbc-label{ font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ── LOADING ── */
+    #loading { display: none; text-align: center; padding: 4rem 2rem; }
+    .ring {
+      width: 52px; height: 52px;
+      border: 3px solid rgba(255,153,51,.12); border-top-color: var(--saffron);
+      border-radius: 50%; animation: spin .75s linear infinite; margin: 0 auto 1.2rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .lt  { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
+    .ls  { font-size: .82rem; color: var(--muted); }
+
+    /* ── ERROR ── */
+    #errdiv {
+      display: none; max-width: 460px; margin: 2rem auto; text-align: center;
+      padding: 2rem; background: rgba(239,68,68,.07);
+      border: 1px solid rgba(239,68,68,.2); border-radius: 14px;
+    }
+
+    /* ── RESULTS ── */
+    #results { display: none; padding: 0 2.5rem 4rem; max-width: 1080px; margin: 0 auto; }
+    .rh {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.75rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: .75rem;
+    }
+    .rt   { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; }
+    .rt span { color: var(--saffron); }
+    .rm   { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+    .back-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      padding: .45rem .9rem; border-radius: 8px; cursor: pointer; font-size: .78rem;
+      font-family: 'DM Sans', sans-serif; transition: all .2s;
+    }
+    .back-btn:hover { border-color: var(--saffron); color: var(--saffron); }
+
+    /* Winner banner */
+    .winner {
+      display: flex; align-items: center; gap: 1.25rem;
+      background: linear-gradient(135deg, rgba(19,136,8,.14), rgba(8,20,42,.5));
+      border: 1px solid rgba(34,197,94,.3); border-radius: 14px;
+      padding: 1.4rem 1.75rem; margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .wi       { font-size: 2.2rem; flex-shrink: 0; }
+    .wl       { font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--greenl); margin-bottom: .25rem; }
+    .wt       { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: .2rem; }
+    .wp       { font-size: .78rem; color: var(--muted); }
+    .wpr      { margin-left: auto; text-align: right; }
+    .wpr-num  { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--greenl); }
+    .wpr-lbl  { font-size: .68rem; color: var(--muted); }
+    .w-btn {
+      background: var(--green); color: #fff; border: none;
+      padding: .55rem 1.2rem; border-radius: 8px; font-size: .78rem; font-weight: 500;
+      cursor: pointer; text-decoration: none; display: inline-block; transition: all .2s;
+    }
+    .w-btn:hover { background: var(--greenl); transform: translateY(-1px); }
+
+    /* Tabs */
+    .tabs {
+      display: flex; gap: .25rem; border-bottom: 1px solid var(--border);
+      margin-bottom: 1.4rem; overflow-x: auto;
+    }
+    .tab {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 500; padding: .55rem 1.1rem;
+      cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .tab:hover  { color: var(--white); }
+    .tab.on     { color: var(--saffron); border-bottom-color: var(--saffron); }
+    .tc {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,153,51,.14); color: var(--saffron);
+      width: 18px; height: 18px; border-radius: 50%;
+      font-size: .63rem; font-weight: 700; margin-left: .35rem;
+    }
+    .panel     { display: none; }
+    .panel.on  { display: block; }
+
+    /* Product grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px,1fr)); gap: 1.1rem; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 13px; padding: 1.15rem;
+      display: flex; flex-direction: column; gap: .7rem;
+      position: relative; overflow: hidden;
+      transition: border-color .25s, transform .2s, box-shadow .2s;
+      animation: up .35s ease both;
+    }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2.5px; }
+    .card.amazon::before   { background: var(--amazon); }
+    .card.flipkart::before { background: var(--flipkart); }
+    .card.gem::before      { background: var(--saffron); }
+    .card:hover {
+      border-color: rgba(255,153,51,.3);
+      transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,.4);
+    }
+    .card.best { border-color: rgba(34,197,94,.45); box-shadow: 0 0 0 1px rgba(34,197,94,.25); }
+
+    .ptag {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .67rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+      padding: .22rem .65rem; border-radius: 100px; width: fit-content;
+    }
+    .ptag.amazon   { background: rgba(255,153,0,.1);   color: var(--amazon); }
+    .ptag.flipkart { background: rgba(40,116,240,.1);  color: var(--flipkart); }
+    .ptag.gem      { background: rgba(255,153,51,.1);  color: var(--saffron); }
+
+    .best-badge {
+      position: absolute; top: .7rem; right: .7rem;
+      background: var(--green); color: #fff;
+      font-size: .6rem; font-weight: 700;
+      padding: .18rem .5rem; border-radius: 100px; letter-spacing: .05em;
+    }
+    .img-wrap {
+      width: 100%; height: 130px;
+      background: rgba(255,255,255,.03); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform .3s; }
+    .card:hover .img-wrap img { transform: scale(1.06); }
+    .no-img { font-size: 2.2rem; opacity: .18; }
+
+    .ctitle {
+      font-size: .84rem; font-weight: 500; line-height: 1.42;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .cfoot { display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; }
+    .cprice { font-family: 'Syne', sans-serif; font-size: 1.45rem; font-weight: 800; line-height: 1; }
+    .cplabel{ font-size: .67rem; color: var(--muted); margin-top: .1rem; }
+    .clink {
+      background: rgba(255,153,51,.09); border: 1px solid rgba(255,153,51,.2);
+      color: var(--saffron); padding: .45rem .85rem; border-radius: 8px;
+      font-size: .74rem; font-weight: 500; text-decoration: none; transition: all .2s;
+    }
+    .clink:hover { background: rgba(255,153,51,.18); }
+
+    /* Comparison table */
+    .tbl-wrap { overflow-x: auto; border-radius: 13px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    thead th {
+      background: rgba(255,153,51,.07); color: var(--muted);
+      font-size: .68rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+      padding: .9rem 1.1rem; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    tbody td { padding: .9rem 1.1rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td     { background: rgba(255,153,51,.03); }
+    .tdot  { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: .35rem; }
+    .tprice{ font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; }
+    .tprice.low { color: var(--greenl); }
+    .tsave { font-size: .76rem; color: var(--muted); }
+
+    /* Empty */
+    .empty { text-align: center; padding: 3rem; color: var(--muted); grid-column: 1/-1; }
+    .empty-i{ font-size: 2.8rem; margin-bottom: .75rem; }
+
+    @keyframes up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 1.75rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .75rem; font-size: .75rem; color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 1rem 1.1rem; }
+      .hero { padding: 3rem 1.1rem 2rem; }
+      #results { padding: 0 1.1rem 3rem; }
+      .stats-bar { padding: 0 1.1rem; grid-template-columns: 1fr; }
+      footer { padding: 1.25rem 1.1rem; }
+      .winner { flex-direction: column; }
+      .wpr { margin-left: 0; text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <div class="logo-box">GeM</div>
+    <div>
+      <div class="logo-name">GeM Compare</div>
+      <div class="logo-sub">Government E-Marketplace</div>
+    </div>
+  </a>
+  <div class="nav-r">
+    <a class="nav-link" href="/admin">Admin Panel</a>
+    <div class="nav-chip">🇮🇳 Digital India</div>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<div id="heroSection">
+  <section class="hero">
+    <div class="eyebrow"><span class="live-dot"></span>Verified Price Database</div>
+    <h1>Compare Prices Across<br/><em>Every Platform</em></h1>
+    <p class="hero-p">
+      Search our verified database of real prices from GeM, Amazon India, and Flipkart.
+      Hand-collected, date-stamped, and fully transparent.
+    </p>
+
+    <div class="search-box">
+      <div class="search-inner">
+        <svg class="si-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input id="q" type="text" placeholder="Search — laptop, pen drive, office chair…" autocomplete="off"/>
+        <button class="search-btn" id="sbtn" onclick="doSearch()">Compare →</button>
+      </div>
+      <div class="pills">
+        <span class="pill" onclick="qs('Pen Drive')">💾 Pen Drive</span>
+        <span class="pill" onclick="qs('Office Chair')">🪑 Office Chair</span>
+        <span class="pill" onclick="qs('Laptop')">💻 Laptop</span>
+        <span class="pill" onclick="qs('Printer')">🖨️ Printer</span>
+        <span class="pill" onclick="qs('Webcam')">📷 Webcam</span>
+        <span class="pill" onclick="qs('Stapler')">🖇️ Stapler</span>
+      </div>
+    </div>
+
+    <div class="platform-row">
+      <div class="p-card">
+        <div class="p-name"><span class="p-dot" style="background:var(--saffron)"></span>GeM Portal</div>
+        <div class="p-status">✓ In Database</div>
+      </div>
+      <div class="p-card">
+        <div class="p-name"><span class="p-dot" style="background:var(--amazon)"></span>Amazon India</div>
+        <div class="p-status">✓ In Database</div>
+      </div>
+      <div class="p-card">
+        <div class="p-name"><span class="p-dot" style="background:var(--flipkart)"></span>Flipkart</div>
+        <div class="p-status">✓ In Database</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats-bar" id="statsBar">
+    <div class="sbc"><div class="sbc-num" id="s-prod">—</div><div class="sbc-label">Products in database</div></div>
+    <div class="sbc"><div class="sbc-num" id="s-save">—</div><div class="sbc-label">Avg. GeM saving vs competitors</div></div>
+    <div class="sbc"><div class="sbc-num" id="s-win">—</div><div class="sbc-label">Products where GeM is cheapest</div></div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="ring"></div>
+  <div class="lt">Searching database…</div>
+  <div class="ls">Comparing GeM · Amazon · Flipkart</div>
+</div>
+
+<!-- ERROR -->
+<div id="errdiv">
+  <div style="font-size:2rem;margin-bottom:.75rem">⚠️</div>
+  <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:.4rem">Search Failed</div>
+  <div style="font-size:.82rem;color:var(--muted)" id="errmsg">Please try again.</div>
+</div>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="rh">
+    <div>
+      <div class="rt">Results for <span id="qlabel"></span></div>
+      <div class="rm" id="rmeta"></div>
+    </div>
+    <button class="back-btn" onclick="goBack()">← New Search</button>
+  </div>
+
+  <div class="winner" id="winnerDiv">
+    <div class="wi">🏆</div>
+    <div>
+      <div class="wl">Best Price Found</div>
+      <div class="wt" id="wt">—</div>
+      <div class="wp" id="wplatform">—</div>
+    </div>
+    <div class="wpr">
+      <div class="wpr-num" id="wprice">—</div>
+      <div class="wpr-lbl">Lowest price</div>
+    </div>
+    <a id="wlink" href="#" target="_blank" rel="noopener" class="w-btn">View Deal →</a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('all',this)">All Results</button>
+    <button class="tab"    onclick="switchTab('compare',this)">Price Table</button>
+    <button class="tab"    onclick="switchTab('gem',this)">GeM <span class="tc" id="tc-gem">0</span></button>
+    <button class="tab"    onclick="switchTab('amazon',this)">Amazon <span class="tc" id="tc-amz">0</span></button>
+    <button class="tab"    onclick="switchTab('flipkart',this)">Flipkart <span class="tc" id="tc-fk">0</span></button>
+  </div>
+
+  <div class="panel on" id="panel-all">     <div class="grid" id="g-all"></div></div>
+  <div class="panel"    id="panel-compare"> <div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Platform</th><th>Price</th><th>vs Cheapest</th><th>Collected</th><th>Link</th></tr></thead><tbody id="tbl"></tbody></table></div></div>
+  <div class="panel"    id="panel-gem">     <div class="grid" id="g-gem"></div></div>
+  <div class="panel"    id="panel-amazon">  <div class="grid" id="g-amz"></div></div>
+  <div class="panel"    id="panel-flipkart"><div class="grid" id="g-fk"></div></div>
+</section>
+
+<footer>
+  <span>© 2025 GeM Compare · Thakur College of Engineering &amp; Technology, Mumbai</span>
+  <span>🇮🇳 Promoting transparent government procurement</span>
+</footer>
+
+<script>
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  const fmt = p => '₹' + Number(p).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const pColor = p => ({ Amazon: '#FF9900', Flipkart: '#2874F0', GeM: '#FF9933' }[p] || '#888');
+  const pIcon  = p => ({ Amazon: '🛒', Flipkart: '📦', GeM: '🏛️' }[p] || '');
+
+  // ── Load stats on page load ──────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const d = await fetch('/api/stats').then(r => r.json());
+      document.getElementById('s-prod').textContent  = d.total_products;
+      const gemWin = (d.platform_wins || []).find(w => w.platform === 'GeM');
+      document.getElementById('s-win').textContent   = gemWin ? gemWin.wins : 0;
+      const saving = d.avg_gem_saving_vs_others || 0;
+      document.getElementById('s-save').textContent  = saving > 0 ? fmt(saving) : '₹0';
+    } catch (e) { /* stats are non-critical */ }
+  }
+  loadStats();
+
+  // ── Search ───────────────────────────────────────────────────────────────────
+  function qs(v) { document.getElementById('q').value = v; doSearch(); }
+
+  document.getElementById('q').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+
+  async function doSearch() {
+    const q = document.getElementById('q').value.trim();
+    if (!q) return;
+
+    document.getElementById('heroSection').style.display = 'none';
+    document.getElementById('results').style.display     = 'none';
+    document.getElementById('errdiv').style.display      = 'none';
+    document.getElementById('loading').style.display     = 'block';
+    document.getElementById('sbtn').disabled = true;
+
+    try {
+      const resp = await fetch('/api/search?q=' + encodeURIComponent(q));
+      if (!resp.ok) throw new Error('Server returned ' + resp.status);
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      renderResults(data);
+    } catch (e) {
+      document.getElementById('loading').style.display  = 'none';
+      document.getElementById('errdiv').style.display   = 'block';
+      document.getElementById('errmsg').textContent      = e.message || 'Unknown error';
+      document.getElementById('heroSection').style.display = '';
+    } finally {
+      document.getElementById('sbtn').disabled = false;
+    }
+  }
+
+  function goBack() {
+    document.getElementById('results').style.display     = 'none';
+    document.getElementById('heroSection').style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Render results ───────────────────────────────────────────────────────────
+  function renderResults(data) {
+    document.getElementById('loading').style.display = 'none';
+    const sec = document.getElementById('results');
+    sec.style.display = 'block';
+
+    document.getElementById('qlabel').textContent = '"' + data.query + '"';
+    document.getElementById('rmeta').textContent  = data.total + ' product(s) matched in database';
+
+    // Flatten all price entries (each price entry has product context)
+    const flat = [];
+    (data.results || []).forEach(prod => {
+      (prod.prices || []).forEach(p => {
+        flat.push({
+          ...p,
+          product_name:  prod.name,
+          product_image: prod.image_url,
+          product_brand: prod.brand || '',
+        });
+      });
+    });
+
+    const lowestPrice = flat.length ? Math.min(...flat.map(f => f.price)) : null;
+
+    // Winner banner
+    const wDiv = document.getElementById('winnerDiv');
+    if (data.overall_cheapest) {
+      const w = data.overall_cheapest;
+      document.getElementById('wt').textContent       = w.product_name;
+      document.getElementById('wplatform').textContent = 'Available on ' + w.platform;
+      document.getElementById('wprice').textContent    = fmt(w.price);
+      const wl = document.getElementById('wlink');
+      if (w.url) { wl.href = w.url; wl.style.display = ''; }
+      else { wl.style.display = 'none'; }
+      wDiv.style.display = 'flex';
+    } else {
+      wDiv.style.display = 'none';
+    }
+
+    // Per-platform
+    const gem = flat.filter(f => f.platform === 'GeM');
+    const amz = flat.filter(f => f.platform === 'Amazon');
+    const fk  = flat.filter(f => f.platform === 'Flipkart');
+
+    document.getElementById('tc-gem').textContent = gem.length;
+    document.getElementById('tc-amz').textContent = amz.length;
+    document.getElementById('tc-fk').textContent  = fk.length;
+
+    document.getElementById('g-all').innerHTML = renderCards(flat, lowestPrice);
+    document.getElementById('g-gem').innerHTML = renderCards(gem,  lowestPrice);
+    document.getElementById('g-amz').innerHTML = renderCards(amz,  lowestPrice);
+    document.getElementById('g-fk').innerHTML  = renderCards(fk,   lowestPrice);
+    document.getElementById('tbl').innerHTML   = renderTable(flat,  lowestPrice);
+
+    // Reset to All tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+    document.querySelector('.tab').classList.add('on');
+    document.getElementById('panel-all').classList.add('on');
+
+    window.scrollTo({ top: sec.offsetTop - 80, behavior: 'smooth' });
+  }
+
+  function renderCards(items, lowestPrice) {
+    if (!items.length) return `
+      <div class="empty">
+        <div class="empty-i">🔍</div>
+        <div>No results from this platform for this search.</div>
+      </div>`;
+
+    return items.map((item, i) => {
+      const isBest = item.price === lowestPrice;
+      const pl = item.platform.toLowerCase();
+      return `
+        <div class="card ${pl} ${isBest ? 'best' : ''}" style="animation-delay:${i * .04}s">
+          ${isBest ? '<div class="best-badge">✓ Cheapest</div>' : ''}
+          <div class="ptag ${pl}">${pIcon(item.platform)} ${esc(item.platform)}</div>
+          <div class="img-wrap">
+            ${item.product_image
+              ? `<img src="${esc(item.product_image)}" loading="lazy" alt="${esc(item.product_name)}" onerror="this.parentElement.innerHTML='<div class=no-img>📦</div>'">`
+              : '<div class="no-img">📦</div>'}
+          </div>
+          <div class="ctitle">
+            ${esc(item.product_name)}
+            ${item.product_brand ? `<span style="color:var(--muted);font-weight:300"> · ${esc(item.product_brand)}</span>` : ''}
+          </div>
+          <div class="cfoot">
+            <div>
+              <div class="cprice">${fmt(item.price)}</div>
+              <div class="cplabel">on ${esc(item.platform)}</div>
+            </div>
+            ${item.url ? `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="clink">View →</a>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderTable(items, lowestPrice) {
+    if (!items.length) return `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)">No results</td></tr>`;
+    return [...items].sort((a, b) => a.price - b.price).map(item => {
+      const isLow  = item.price === lowestPrice;
+      const diff   = lowestPrice ? item.price - lowestPrice : 0;
+      const pct    = (lowestPrice && !isLow) ? ((diff / item.price) * 100).toFixed(1) : null;
+      return `
+        <tr>
+          <td style="max-width:220px;font-size:.8rem">${esc(item.product_name)}</td>
+          <td>
+            <span class="tdot" style="background:${pColor(item.platform)}"></span>
+            ${esc(item.platform)}
+          </td>
+          <td><div class="tprice ${isLow ? 'low' : ''}">${fmt(item.price)}</div></td>
+          <td>
+            ${isLow
+              ? '<span style="color:var(--greenl);font-size:.8rem;font-weight:600">✓ Lowest</span>'
+              : `<span class="tsave">+${fmt(diff)} (${pct}% more)</span>`}
+          </td>
+          <td style="font-size:.76rem;color:var(--muted)">${esc(item.collected_date || '—')}</td>
+          <td>
+            ${item.url
+              ? `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="clink" style="font-size:.72rem;padding:.35rem .7rem">View</a>`
+              : '—'}
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ── Tabs ─────────────────────────────────────────────────────────────────────
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab').forEach(b   => b.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('panel-' + name).classList.add('on');
+  }
+</script>
+</body>
+</html>
