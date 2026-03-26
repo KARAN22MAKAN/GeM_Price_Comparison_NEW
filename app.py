@@ -190,4 +190,4 @@ if __name__ == "__main__":
     print("Main site  → http://localhost:8000")
     print("Admin panel→ http://localhost:8000/admin")
    port = int(os.environ.get("PORT", 10000))
-app.run(host="0.0.0.0", port=port)
+   app.run(host="0.0.0.0", port=port)
