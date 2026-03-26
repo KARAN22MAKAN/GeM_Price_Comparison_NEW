@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeM Compare — Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:     #08142a;
+      --card:     #0d1f3c;
+      --card2:    #112444;
+      --border:   rgba(255,153,51,.13);
+      --saffron:  #FF9933;
+      --saff2:    #d96e00;
+      --green:    #138808;
+      --greenl:   #22c55e;
+      --amazon:   #FF9900;
+      --flipkart: #2874F0;
+      --white:    #eef2ff;
+      --muted:    #7a8baa;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--white); min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .9rem 2rem; border-bottom: 1px solid var(--border);
+      background: rgba(8,20,42,.96); position: sticky; top: 0; z-index: 100;
+    }
+    .nav-l { display: flex; align-items: center; gap: 1rem; }
+    .logo  { display: flex; align-items: center; gap: .65rem; text-decoration: none; }
+    .logo-box {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--saffron), var(--saff2));
+      border-radius: 7px; display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .8rem; color: #08142a;
+    }
+    .logo-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .95rem; }
+    .admin-badge {
+      background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25);
+      color: #f87171; font-size: .68rem; padding: .25rem .7rem; border-radius: 100px; font-weight: 600;
+    }
+    .nav-home { color: var(--muted); font-size: .8rem; text-decoration: none; transition: color .2s; }
+    .nav-home:hover { color: var(--saffron); }
+
+    /* LAYOUT */
+    .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 53px); }
+
+    /* SIDEBAR */
+    aside {
+      border-right: 1px solid var(--border); padding: 1.25rem .75rem;
+      background: rgba(13,31,60,.5); overflow-y: auto;
+    }
+    .side-title {
+      font-size: .67rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); padding: 0 .5rem; margin-bottom: .5rem; margin-top: 1.1rem;
+    }
+    .side-title:first-child { margin-top: 0; }
+    .slink {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .55rem .75rem; border-radius: 9px; color: var(--muted);
+      font-size: .82rem; cursor: pointer; transition: all .2s;
+      border: none; background: transparent; width: 100%; text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .slink:hover  { background: rgba(255,153,51,.07); color: var(--white); }
+    .slink.on     { background: rgba(255,153,51,.12); color: var(--saffron); font-weight: 500; }
+    .slink-icon   { font-size: 1rem; width: 20px; text-align: center; }
+
+    .side-stats {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem; margin-top: 1.5rem;
+    }
+    .ss-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .35rem 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .78rem;
+    }
+    .ss-row:last-child { border-bottom: none; }
+    .ss-val { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--saffron); }
+
+    /* MAIN */
+    main { padding: 2rem; overflow-y: auto; }
+    .view     { display: none; }
+    .view.on  { display: block; }
+
+    /* PAGE HEADER */
+    .ph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: .75rem; }
+    .ph-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; }
+    .ph-sub   { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .55rem 1.1rem; border-radius: 9px; font-size: .8rem; font-weight: 500;
+      cursor: pointer; border: none; transition: all .18s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--saffron), var(--saff2)); color: #08142a; font-weight: 700; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(255,153,51,.3); }
+    .btn-ghost  { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover  { border-color: var(--saffron); color: var(--saffron); }
+    .btn-danger { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: #f87171; }
+    .btn-danger:hover { background: rgba(239,68,68,.2); }
+    .btn-green  { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2); color: var(--greenl); }
+    .btn-green:hover  { background: rgba(34,197,94,.2); }
+    .btn-sm { padding: .35rem .75rem; font-size: .74rem; }
+
+    /* FILTER BAR */
+    .filter-bar { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.25rem; }
+    .admin-search {
+      flex: 1; background: var(--card); border: 1px solid var(--border);
+      border-radius: 9px; padding: .6rem 1rem; color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; outline: none; transition: border-color .2s;
+    }
+    .admin-search:focus { border-color: var(--saffron); }
+    .admin-search::placeholder { color: var(--muted); }
+
+    /* PRODUCT TABLE */
+    .ptable-wrap { border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+    .ptable { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .ptable th {
+      background: rgba(255,153,51,.06); color: var(--muted); font-size: .67rem;
+      font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+      padding: .8rem 1rem; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    .ptable td { padding: .85rem 1rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+    .ptable tr:last-child td { border-bottom: none; }
+    .ptable tr:hover td { background: rgba(255,153,51,.025); }
+
+    .prod-info  { display: flex; align-items: center; gap: .75rem; }
+    .prod-thumb {
+      width: 40px; height: 40px; object-fit: contain;
+      border-radius: 7px; background: rgba(255,255,255,.04); flex-shrink: 0;
+    }
+    .prod-name  { font-weight: 500; font-size: .82rem; }
+    .prod-brand { font-size: .72rem; color: var(--muted); }
+
+    .pchips { display: flex; gap: .35rem; flex-wrap: wrap; }
+    .pchip  { font-size: .7rem; padding: .2rem .55rem; border-radius: 100px; font-weight: 600; white-space: nowrap; }
+    .pchip.gem      { background: rgba(255,153,51,.1);   color: var(--saffron); }
+    .pchip.amazon   { background: rgba(255,153,0,.1);    color: var(--amazon); }
+    .pchip.flipkart { background: rgba(40,116,240,.1);   color: var(--flipkart); }
+    .pchip.none     { background: rgba(255,255,255,.05); color: var(--muted); }
+
+    .cat-tag { background: rgba(255,255,255,.06); color: var(--muted); font-size: .7rem; padding: .2rem .55rem; border-radius: 100px; }
+    .actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+    /* FORM */
+    .form-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .fg { display: flex; flex-direction: column; gap: .4rem; }
+    .fg.full { grid-column: 1 / -1; }
+    label { font-size: .74rem; font-weight: 500; color: var(--muted); letter-spacing: .03em; }
+    input, select, textarea {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 8px; padding: .6rem .85rem; color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; outline: none; width: 100%;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--saffron); }
+    input::placeholder, textarea::placeholder { color: var(--muted); }
+    select option { background: var(--card2); color: var(--white); }
+    textarea { resize: vertical; min-height: 72px; }
+    .form-actions {
+      display: flex; justify-content: flex-end; gap: .6rem;
+      margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border);
+    }
+
+    /* PRICE ROWS */
+    .prices-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .ps-title { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; margin-bottom: 1rem; }
+    .price-input-row {
+      display: grid; grid-template-columns: 90px 1fr 1fr 1fr 130px;
+      gap: .6rem; align-items: center; padding: .65rem .75rem;
+      border-radius: 9px; background: rgba(0,0,0,.2); border: 1px solid var(--border);
+      margin-bottom: .5rem;
+    }
+    .pl-label { font-weight: 600; font-size: .75rem; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.72);
+      backdrop-filter: blur(4px); z-index: 500;
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.on { display: flex; }
+    .modal {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 16px; width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto; animation: pop .25s ease;
+    }
+    @keyframes pop { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--card2); z-index: 1;
+    }
+    .modal-title  { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; }
+    .modal-close  { background: transparent; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color .2s; }
+    .modal-close:hover { color: var(--white); }
+    .modal-body   { padding: 1.5rem; }
+
+    /* Existing price rows in modal */
+    .ep-price-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .5rem; padding: .6rem .8rem; border-radius: 9px;
+      background: rgba(0,0,0,.2); border: 1px solid var(--border); margin-bottom: .4rem;
+      font-size: .82rem;
+    }
+    .ep-price-info { display: flex; align-items: center; gap: .75rem; }
+    .ep-price-val  { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .95rem; }
+    .ep-price-date { font-size: .72rem; color: var(--muted); }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-c { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; }
+    .stat-n { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--saffron); }
+    .stat-l { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+    .stats-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .stats-sub-title { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: .85rem; font-size: .9rem; }
+    .win-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .6rem .8rem; border-radius: 8px;
+      background: var(--card); border: 1px solid var(--border); margin-bottom: .4rem; font-size: .82rem;
+    }
+    .win-num { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--saffron); }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; display: flex; flex-direction: column; gap: .5rem; pointer-events: none; }
+    .toast-item {
+      background: var(--card2); border: 1px solid var(--border); border-radius: 10px;
+      padding: .75rem 1.1rem; font-size: .82rem;
+      display: flex; align-items: center; gap: .6rem;
+      animation: tup .3s ease; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .toast-item.ok  { border-color: rgba(34,197,94,.3); color: var(--greenl); }
+    .toast-item.err { border-color: rgba(239,68,68,.3);  color: #f87171; }
+    @keyframes tup { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      aside   { display: none; }
+      main    { padding: 1.25rem; }
+      .form-grid  { grid-template-columns: 1fr; }
+      .price-input-row { grid-template-columns: 1fr 1fr; }
+      .stats-cols { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-l">
+    <a class="logo" href="/">
+      <div class="logo-box">GeM</div>
+      <div class="logo-name">GeM Compare</div>
+    </a>
+    <div class="admin-badge">Admin Panel</div>
+  </div>
+  <a class="nav-home" href="/">← Back to Site</a>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="side-title">Manage</div>
+    <button class="slink on" onclick="showView('products', this)"><span class="slink-icon">📦</span>All Products</button>
+    <button class="slink"    onclick="showView('add-product', this)"><span class="slink-icon">➕</span>Add Product</button>
+    <button class="slink"    onclick="showView('categories', this)"><span class="slink-icon">🗂️</span>Categories</button>
+
+    <div class="side-title">Insights</div>
+    <button class="slink" onclick="showView('stats', this)"><span class="slink-icon">📊</span>Stats &amp; Insights</button>
+
+    <div class="side-stats">
+      <div class="ss-row"><span>Products</span>     <span class="ss-val" id="ss-p">—</span></div>
+      <div class="ss-row"><span>Price entries</span><span class="ss-val" id="ss-pr">—</span></div>
+      <div class="ss-row"><span>Categories</span>   <span class="ss-val" id="ss-c">—</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- ── PRODUCTS LIST ── -->
+    <div class="view on" id="view-products">
+      <div class="ph">
+        <div>
+          <div class="ph-title">All Products</div>
+          <div class="ph-sub">Click Edit to update details or add/remove prices</div>
+        </div>
+        <button class="btn btn-primary" onclick="showView('add-product', null)">+ Add Product</button>
+      </div>
+      <div class="filter-bar">
+        <input class="admin-search" id="prodFilter" placeholder="Filter by name, brand, category…" oninput="filterProducts()"/>
+      </div>
+      <div class="ptable-wrap">
+        <table class="ptable">
+          <thead>
+            <tr><th>Product</th><th>Category</th><th>Prices</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="prodTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ADD PRODUCT ── -->
+    <div class="view" id="view-add-product">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Add New Product</div>
+          <div class="ph-sub">Fill in details and optionally add initial prices</div>
+        </div>
+        <button class="btn btn-ghost" onclick="showView('products', null)">← Back</button>
+      </div>
+      <div class="form-wrap">
+        <div class="form-grid">
+          <div class="fg">     <label>Product Name *</label><input id="ap-name"  placeholder="e.g. HP LaserJet MFP M141w"/></div>
+          <div class="fg">     <label>Brand</label>          <input id="ap-brand" placeholder="e.g. HP"/></div>
+          <div class="fg">     <label>Category *</label>     <select id="ap-cat"></select></div>
+          <div class="fg">     <label>Image URL</label>      <input id="ap-img"   placeholder="https://…"/></div>
+          <div class="fg full"><label>Description</label>    <textarea id="ap-desc" placeholder="Short product description…"></textarea></div>
+        </div>
+
+        <div class="prices-section">
+          <div class="ps-title">Initial Prices <span style="color:var(--muted);font-weight:400;font-size:.82rem">(optional — you can add later via Edit)</span></div>
+          <div class="price-input-row">
+            <span class="pl-label" style="color:var(--saffron)">🏛️ GeM</span>
+            <input type="number" id="ap-gem-price" placeholder="Price ₹" min="0" step="0.01"/>
+            <input id="ap-gem-url"   placeholder="Product URL"/>
+            <input id="ap-gem-notes" placeholder="Notes"/>
+            <input type="date" id="ap-gem-date"/>
+          </div>
+          <div class="price-input-row">
+            <span class="pl-label" style="color:var(--amazon)">🛒 Amazon</span>
+            <input type="number" id="ap-amz-price" placeholder="Price ₹" min="0" step="0.01"/>
+            <input id="ap-amz-url"   placeholder="Product URL"/>
+            <input id="ap-amz-notes" placeholder="Notes"/>
+            <input type="date" id="ap-amz-date"/>
+          </div>
+          <div class="price-input-row">
+            <span class="pl-label" style="color:var(--flipkart)">📦 Flipkart</span>
+            <input type="number" id="ap-fk-price" placeholder="Price ₹" min="0" step="0.01"/>
+            <input id="ap-fk-url"   placeholder="Product URL"/>
+            <input id="ap-fk-notes" placeholder="Notes"/>
+            <input type="date" id="ap-fk-date"/>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-ghost"   onclick="showView('products', null)">Cancel</button>
+          <button class="btn btn-primary" onclick="addProduct()">Save Product</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CATEGORIES ── -->
+    <div class="view" id="view-categories">
+      <div class="ph">
+        <div><div class="ph-title">Categories</div><div class="ph-sub">Organise products into categories</div></div>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input class="admin-search" id="newCatInput" placeholder="New category name…" style="max-width:220px"/>
+          <button class="btn btn-primary" onclick="addCategory()">Add</button>
+        </div>
+      </div>
+      <div id="catList"></div>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="view" id="view-stats">
+      <div class="ph"><div class="ph-title">Stats &amp; Insights</div></div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="stats-cols">
+        <div>
+          <div class="stats-sub-title">🏆 Platform Wins (Cheapest Price)</div>
+          <div id="winList"></div>
+        </div>
+        <div>
+          <div class="stats-sub-title">💰 Average Price Per Platform</div>
+          <div id="avgList"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Edit Product</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ep-id"/>
+
+      <!-- Product fields -->
+      <div class="form-grid">
+        <div class="fg">     <label>Product Name *</label><input id="ep-name"/></div>
+        <div class="fg">     <label>Brand</label>          <input id="ep-brand"/></div>
+        <div class="fg">     <label>Category *</label>     <select id="ep-cat"></select></div>
+        <div class="fg">     <label>Image URL</label>      <input id="ep-img"/></div>
+        <div class="fg full"><label>Description</label>    <textarea id="ep-desc"></textarea></div>
+      </div>
+      <div class="form-actions" style="margin-bottom:0;padding-bottom:0">
+        <button class="btn btn-ghost btn-sm"   onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="saveProduct()">Save Changes</button>
+      </div>
+
+      <!-- Prices -->
+      <div class="prices-section">
+        <div class="ps-title">Current Prices</div>
+        <div id="ep-prices"></div>
+
+        <div style="margin-top:1.1rem">
+          <div style="font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.05em">Add / Update a Price</div>
+          <div class="price-input-row" style="grid-template-columns:110px 1fr 1fr 1fr 130px auto">
+            <select id="np-platform">
+              <option>GeM</option><option>Amazon</option><option>Flipkart</option>
+            </select>
+            <input type="number" id="np-price" placeholder="Price ₹" min="0" step="0.01"/>
+            <input id="np-url"   placeholder="URL"/>
+            <input id="np-notes" placeholder="Notes"/>
+            <input type="date"   id="np-date"/>
+            <button class="btn btn-green btn-sm" onclick="addPrice()">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ── State ─────────────────────────────────────────────────────────────────────
+  let allProducts  = [];
+  let categories   = [];
+  let editingId    = null;
+
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  async function init() {
+    await Promise.all([loadProducts(), loadCategories()]);
+    populateCatDropdowns();
+    setTodayDates();
+  }
+  init();
+
+  function setTodayDates() {
+    const today = new Date().toISOString().split('T')[0];
+    ['ap-gem-date','ap-amz-date','ap-fk-date','np-date'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = today;
+    });
+  }
+
+  // ── Data loaders ──────────────────────────────────────────────────────────────
+  async function loadProducts() {
+    try {
+      allProducts = await fetch('/api/admin/products').then(r => r.json());
+      renderProductTable(allProducts);
+      const totalPrices = allProducts.reduce((s, p) => s + p.prices.length, 0);
+      document.getElementById('ss-p').textContent  = allProducts.length;
+      document.getElementById('ss-pr').textContent = totalPrices;
+    } catch (e) { toast('Could not load products', 'err'); }
+  }
+
+  async function loadCategories() {
+    try {
+      categories = await fetch('/api/categories').then(r => r.json());
+      document.getElementById('ss-c').textContent = categories.length;
+      renderCatList();
+    } catch (e) {}
+  }
+
+  async function loadStats() {
+    try {
+      const d = await fetch('/api/stats').then(r => r.json());
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-c"><div class="stat-n">${d.total_products}</div>      <div class="stat-l">Total Products</div></div>
+        <div class="stat-c"><div class="stat-n">${d.total_price_entries}</div> <div class="stat-l">Price Entries</div></div>
+        <div class="stat-c"><div class="stat-n">${d.total_categories}</div>    <div class="stat-l">Categories</div></div>
+        <div class="stat-c">
+          <div class="stat-n" style="font-size:1.5rem">
+            ${d.avg_gem_saving_vs_others > 0 ? '₹' + Number(d.avg_gem_saving_vs_others).toLocaleString('en-IN', {maximumFractionDigits:0}) : '₹0'}
+          </div>
+          <div class="stat-l">Avg. GeM saving vs others</div>
+        </div>`;
+
+      document.getElementById('winList').innerHTML = (d.platform_wins || []).map(w => `
+        <div class="win-row">
+          <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${pColor(w.platform)};margin-right:.4rem"></span>${esc(w.platform)}</span>
+          <span class="win-num">${w.wins} wins</span>
+        </div>`).join('') || '<p style="color:var(--muted);font-size:.82rem">No data</p>';
+
+      document.getElementById('avgList').innerHTML = (d.avg_price_per_platform || []).map(a => `
+        <div class="win-row">
+          <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${pColor(a.platform)};margin-right:.4rem"></span>${esc(a.platform)}</span>
+          <span class="win-num">₹${Number(a.avg_price).toLocaleString('en-IN', {maximumFractionDigits:0})}</span>
+        </div>`).join('');
+    } catch (e) { toast('Could not load stats', 'err'); }
+  }
+
+  // ── Render helpers ────────────────────────────────────────────────────────────
+  function renderProductTable(prods) {
+    const tbody = document.getElementById('prodTable');
+    if (!prods.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--muted)">No products yet — add one above</td></tr>';
+      return;
+    }
+    tbody.innerHTML = prods.map(p => {
+      const gem = p.prices.find(x => x.platform === 'GeM');
+      const amz = p.prices.find(x => x.platform === 'Amazon');
+      const fk  = p.prices.find(x => x.platform === 'Flipkart');
+      const chips = [
+        gem ? `<span class="pchip gem">GeM ₹${gem.price.toLocaleString('en-IN', {maximumFractionDigits:0})}</span>` : '<span class="pchip none">No GeM</span>',
+        amz ? `<span class="pchip amazon">AMZ ₹${amz.price.toLocaleString('en-IN', {maximumFractionDigits:0})}</span>` : '<span class="pchip none">No AMZ</span>',
+        fk  ? `<span class="pchip flipkart">FK ₹${fk.price.toLocaleString('en-IN', {maximumFractionDigits:0})}</span>` : '<span class="pchip none">No FK</span>',
+      ].join('');
+      return `
+        <tr>
+          <td>
+            <div class="prod-info">
+              ${p.image_url ? `<img src="${esc(p.image_url)}" class="prod-thumb" onerror="this.style.display='none'" alt="">` : ''}
+              <div>
+                <div class="prod-name">${esc(p.name)}</div>
+                <div class="prod-brand">${esc(p.brand || '')}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="cat-tag">${esc(p.category || '—')}</span></td>
+          <td><div class="pchips">${chips}</div></td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-ghost btn-sm"  onclick="openEdit(${p.id})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id}, '${esc(p.name).replace(/'/g,"\\'")}')">🗑️</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function filterProducts() {
+    const q = document.getElementById('prodFilter').value.toLowerCase();
+    renderProductTable(allProducts.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.brand || '').toLowerCase().includes(q) ||
+      (p.category || '').toLowerCase().includes(q)
+    ));
+  }
+
+  function renderCatList() {
+    document.getElementById('catList').innerHTML = categories.map(c => `
+      <div class="win-row">
+        <span style="font-size:.85rem">${esc(c.name)}</span>
+        <span style="color:var(--muted);font-size:.75rem">ID: ${c.id}</span>
+      </div>`).join('') || '<div style="color:var(--muted);font-size:.85rem">No categories yet</div>';
+  }
+
+  function populateCatDropdowns() {
+    const opts = categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    ['ap-cat', 'ep-cat'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = opts;
+    });
+  }
+
+  // ── Edit modal ────────────────────────────────────────────────────────────────
+  function openEdit(pid) {
+    const p = allProducts.find(x => x.id === pid);
+    if (!p) return;
+    editingId = pid;
+
+    populateCatDropdowns();
+    document.getElementById('ep-id').value    = pid;
+    document.getElementById('ep-name').value  = p.name;
+    document.getElementById('ep-brand').value = p.brand || '';
+    document.getElementById('ep-cat').value   = p.category_id || '';
+    document.getElementById('ep-img').value   = p.image_url || '';
+    document.getElementById('ep-desc').value  = p.description || '';
+    renderEditPrices(p.prices);
+
+    document.getElementById('modalTitle').textContent = 'Edit: ' + p.name.substring(0, 35);
+    document.getElementById('editModal').classList.add('on');
+    // Reset add-price inputs
+    document.getElementById('np-price').value = '';
+    document.getElementById('np-url').value   = '';
+    document.getElementById('np-notes').value = '';
+    setTodayDates();
+  }
+
+  function renderEditPrices(prices) {
+    const container = document.getElementById('ep-prices');
+    if (!prices.length) {
+      container.innerHTML = '<div style="color:var(--muted);font-size:.8rem;margin-bottom:.5rem;padding:.5rem 0">No prices recorded yet. Add one below.</div>';
+      return;
+    }
+    container.innerHTML = prices.map(p => `
+      <div class="ep-price-row">
+        <div class="ep-price-info">
+          <span style="width:8px;height:8px;border-radius:50%;background:${pColor(p.platform)};display:inline-block;flex-shrink:0"></span>
+          <span style="font-weight:600;font-size:.8rem;width:65px">${esc(p.platform)}</span>
+          <span class="ep-price-val">₹${p.price.toLocaleString('en-IN')}</span>
+          <span class="ep-price-date">${p.collected_date ? '· ' + p.collected_date : ''}</span>
+          ${p.notes ? `<span style="font-size:.72rem;color:var(--muted)">${esc(p.notes)}</span>` : ''}
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deletePriceEntry(${p.id})">✕ Remove</button>
+      </div>`).join('');
+  }
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('on');
+    editingId = null;
+  }
+
+  // ── CRUD operations ───────────────────────────────────────────────────────────
+  async function addProduct() {
+    const name = document.getElementById('ap-name').value.trim();
+    if (!name) { toast('Product name is required', 'err'); return; }
+    const cat_id = parseInt(document.getElementById('ap-cat').value);
+    if (!cat_id) { toast('Please select a category', 'err'); return; }
+
+    try {
+      const resp = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          brand:       document.getElementById('ap-brand').value.trim(),
+          category_id: cat_id,
+          description: document.getElementById('ap-desc').value.trim(),
+          image_url:   document.getElementById('ap-img').value.trim(),
+        }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'Failed');
+      const pid = data.id;
+
+      // Save optional prices
+      const platforms = [
+        { name: 'GeM',     price: 'ap-gem-price', url: 'ap-gem-url', notes: 'ap-gem-notes', date: 'ap-gem-date' },
+        { name: 'Amazon',  price: 'ap-amz-price', url: 'ap-amz-url', notes: 'ap-amz-notes', date: 'ap-amz-date' },
+        { name: 'Flipkart',price: 'ap-fk-price',  url: 'ap-fk-url',  notes: 'ap-fk-notes',  date: 'ap-fk-date'  },
+      ];
+      for (const pl of platforms) {
+        const priceVal = parseFloat(document.getElementById(pl.price).value);
+        if (!isNaN(priceVal) && priceVal > 0) {
+          await fetch('/api/admin/prices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product_id:     pid,
+              platform:       pl.name,
+              price:          priceVal,
+              url:            document.getElementById(pl.url).value.trim(),
+              notes:          document.getElementById(pl.notes).value.trim(),
+              collected_date: document.getElementById(pl.date).value,
+            }),
+          });
+        }
+      }
+
+      toast('Product added successfully', 'ok');
+      // Reset form
+      ['ap-name','ap-brand','ap-img','ap-desc',
+       'ap-gem-price','ap-gem-url','ap-gem-notes',
+       'ap-amz-price','ap-amz-url','ap-amz-notes',
+       'ap-fk-price', 'ap-fk-url', 'ap-fk-notes'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      setTodayDates();
+      await loadProducts();
+      showView('products', document.querySelector('.slink'));
+    } catch (e) { toast('Error: ' + e.message, 'err'); }
+  }
+
+  async function saveProduct() {
+    const pid  = parseInt(document.getElementById('ep-id').value);
+    const name = document.getElementById('ep-name').value.trim();
+    if (!name) { toast('Product name is required', 'err'); return; }
+
+    try {
+      const resp = await fetch('/api/admin/products/' + pid, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          brand:       document.getElementById('ep-brand').value.trim(),
+          category_id: parseInt(document.getElementById('ep-cat').value),
+          description: document.getElementById('ep-desc').value.trim(),
+          image_url:   document.getElementById('ep-img').value.trim(),
+        }),
+      });
+      if (!resp.ok) { const d = await resp.json(); throw new Error(d.error || 'Update failed'); }
+      toast('Product updated', 'ok');
+      await loadProducts();
+      closeModal();
+    } catch (e) { toast('Error: ' + e.message, 'err'); }
+  }
+
+  async function deleteProduct(pid, name) {
+    if (!confirm('Delete "' + name + '"?\nAll price entries will also be permanently deleted.')) return;
+    try {
+      const resp = await fetch('/api/admin/products/' + pid, { method: 'DELETE' });
+      if (!resp.ok) throw new Error('Delete failed');
+      toast('Product deleted', 'ok');
+      await loadProducts();
+    } catch (e) { toast('Error: ' + e.message, 'err'); }
+  }
+
+  async function addPrice() {
+    if (!editingId) return;
+    const platform = document.getElementById('np-platform').value;
+    const price    = parseFloat(document.getElementById('np-price').value);
+    if (isNaN(price) || price <= 0) { toast('Enter a valid price greater than 0', 'err'); return; }
+
+    try {
+      const resp = await fetch('/api/admin/prices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id:     editingId,
+          platform,
+          price,
+          url:            document.getElementById('np-url').value.trim(),
+          notes:          document.getElementById('np-notes').value.trim(),
+          collected_date: document.getElementById('np-date').value,
+        }),
+      });
+      if (!resp.ok) { const d = await resp.json(); throw new Error(d.error || 'Failed'); }
+      toast(platform + ' price saved', 'ok');
+      await loadProducts();
+      const updated = allProducts.find(p => p.id === editingId);
+      if (updated) renderEditPrices(updated.prices);
+      document.getElementById('np-price').value = '';
+      document.getElementById('np-url').value   = '';
+      document.getElementById('np-notes').value = '';
+    } catch (e) { toast('Error: ' + e.message, 'err'); }
+  }
+
+  async function deletePriceEntry(priceId) {
+    if (!confirm('Remove this price entry?')) return;
+    try {
+      const resp = await fetch('/api/admin/prices/' + priceId, { method: 'DELETE' });
+      if (!resp.ok) throw new Error('Delete failed');
+      toast('Price removed', 'ok');
+      await loadProducts();
+      const updated = allProducts.find(p => p.id === editingId);
+      if (updated) renderEditPrices(updated.prices);
+    } catch (e) { toast('Error: ' + e.message, 'err'); }
+  }
+
+  async function addCategory() {
+    const name = document.getElementById('newCatInput').value.trim();
+    if (!name) { toast('Enter a category name', 'err'); return; }
+    try {
+      const resp = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'Failed');
+      document.getElementById('newCatInput').value = '';
+      toast('Category "' + name + '" added', 'ok');
+      await loadCategories();
+      populateCatDropdowns();
+    } catch (e) { toast('Error: ' + e.message, 'err'); }
+  }
+
+  // ── Views ─────────────────────────────────────────────────────────────────────
+  function showView(name, btn) {
+    document.querySelectorAll('.view').forEach(v   => v.classList.remove('on'));
+    document.querySelectorAll('.slink').forEach(b  => b.classList.remove('on'));
+    document.getElementById('view-' + name).classList.add('on');
+    if (btn) btn.classList.add('on');
+    if (name === 'stats')      loadStats();
+    if (name === 'categories') renderCatList();
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────────────────────
+  const pColor = p => ({ Amazon: '#FF9900', Flipkart: '#2874F0', GeM: '#FF9933' }[p] || '#888');
+  const esc    = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  function toast(msg, type = 'ok') {
+    const el = document.createElement('div');
+    el.className = 'toast-item ' + type;
+    el.textContent = (type === 'ok' ? '✓ ' : '⚠ ') + msg;
+    document.getElementById('toast').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  // Close modal by clicking overlay
+  document.getElementById('editModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+</script>
+</body>
+</html>
